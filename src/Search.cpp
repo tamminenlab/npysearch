@@ -1,5 +1,11 @@
+#include <pybind11/pybind11.h>
+#define STRINGIFY(x) #x
+#define MACRO_STRINGIFY(x) STRINGIFY(x)
+namespace py = pybind11;
+
 #include "Search.h"
 
+#include <nsearch/FASTA/Reader.h>
 #include <nsearch/Database.h>
 #include <nsearch/Database/HitWriter.h>
 #include <nsearch/Database/GlobalSearch.h>
@@ -7,7 +13,9 @@
 #include <nsearch/Alphabet/DNA.h>
 #include <nsearch/Alphabet/Protein.h>
 
+#include <string>
 #include <memory>
+#include <stdexcept>
 
 #include "Common.h"
 #include "FileFormat.h"
@@ -105,24 +113,49 @@ struct WordSize< Protein > {
   static const int VALUE = 5;
 };
 
-template < typename A >
-bool DoSearch( const std::string& queryPath, const std::string& databasePath,
-               const std::string&       outputPath,
-               const SearchParams< A >& searchParams ) {
+// std::string DFtoSeq(DataFrame seq_table)
+// {
+//   std::vector< std::string > ids = seq_table["Id"];
+//   std::vector< std::string > seqs = seq_table["Seq"];
+  
+//   std::stringstream content;
+
+//   for (int i{0}; i < ids.size(); ++i) {
+//     std::string id{ids[i]};
+//     std::string seq{seqs[i]};
+//     content << ">" << id << "\n" << seq << "\n";
+//   }
+//   return content.str();
+// }
+
+void dna_blast(std::string query_table,
+               std::string db_table,
+               std::string output_file,
+               int maxAccepts = 1,
+               int maxRejects =  16,
+               double minIdentity = 0.75,
+               std::string strand = "both") 
+{
+
+  std::unique_ptr< SequenceReader< DNA > > dbReader( new FASTA::Reader< DNA >( db_table ) );
+  
+  Sequence< DNA > seq;
+  SequenceList< DNA > sequences;
+
+  while( !( dbReader->EndOfFile() ) ) {
+    ( *dbReader ) >> seq;
+    sequences.push_back( std::move( seq ) );
+  }
+
   ProgressOutput progress;
 
-  Sequence< A >     seq;
-  SequenceList< A > sequences;
-
-  auto dbReader = DetectFileFormatAndOpenReader< A >( databasePath, FileFormat::FASTA );
-
   enum ProgressType {
-    ReadDBFile,
-    StatsDB,
-    IndexDB,
-    ReadQueryFile,
-    SearchDB,
-    WriteHits
+                     ReadDBFile,
+                     StatsDB,
+                     IndexDB,
+                     ReadQueryFile,
+                     SearchDB,
+                     WriteHits
   };
 
   progress.Add( ProgressType::ReadDBFile, "Read database", UnitType::BYTES );
@@ -135,49 +168,60 @@ bool DoSearch( const std::string& queryPath, const std::string& databasePath,
   // Read DB
   progress.Activate( ProgressType::ReadDBFile );
   while( !dbReader->EndOfFile() ) {
-    (*dbReader) >> seq;
+    ( *dbReader ) >> seq;
     sequences.push_back( std::move( seq ) );
     progress.Set( ProgressType::ReadDBFile, dbReader->NumBytesRead(),
                   dbReader->NumBytesTotal() );
   }
 
   // Index DB
-  Database< A > db( WordSize< A >::VALUE );
+  Database< DNA > db( WordSize< DNA >::VALUE );
   db.SetProgressCallback(
-    [&]( typename Database< A >::ProgressType type, size_t num, size_t total ) {
-      switch( type ) {
-        case Database< A >::ProgressType::StatsCollection:
-          progress.Activate( ProgressType::StatsDB )
-            .Set( ProgressType::StatsDB, num, total );
-          break;
+                         [&]( typename Database< DNA >::ProgressType type, size_t num, size_t total ) {
+                           switch( type ) {
+                           case Database< DNA >::ProgressType::StatsCollection:
+                             progress.Activate( ProgressType::StatsDB )
+                               .Set( ProgressType::StatsDB, num, total );
+                             break;
 
-        case Database< A >::ProgressType::Indexing:
-          progress.Activate( ProgressType::IndexDB )
-            .Set( ProgressType::IndexDB, num, total );
-          break;
+                           case Database< DNA >::ProgressType::Indexing:
+                             progress.Activate( ProgressType::IndexDB )
+                               .Set( ProgressType::IndexDB, num, total );
+                             break;
 
-        default:
-          break;
-      }
-    } );
+                           default:
+                             break;
+                           }
+                         } );
   db.Initialize( sequences );
 
   // Read and process queries
   const int numQueriesPerWorkItem = 64;
+  
+  SearchParams< DNA > searchParams;
 
-  SearchResultsWriter< A >   writer( 1, outputPath );
-  QueryDatabaseSearcher< A > searcher( -1, &writer, &db, searchParams );
+  searchParams.maxAccepts = maxAccepts;
+  searchParams.maxRejects = maxRejects;
+  searchParams.minIdentity = minIdentity;
+
+  if (strand == "both") searchParams.strand = DNA::Strand::Both;
+  else if (strand == "plus") searchParams.strand = DNA::Strand::Plus;
+  else if (strand == "minus") searchParams.strand = DNA::Strand::Minus;
+  else throw std::invalid_argument("Strand must be 'plus', 'minus' or 'both'.");
+
+  SearchResultsWriter< DNA >   writer( 1, output_file );
+  QueryDatabaseSearcher< DNA > searcher( -1, &writer, &db, searchParams );
 
   searcher.OnProcessed( [&]( size_t numProcessed, size_t numEnqueued ) {
-    progress.Set( ProgressType::SearchDB, numProcessed, numEnqueued );
-  } );
+                          progress.Set( ProgressType::SearchDB, numProcessed, numEnqueued );
+                        } );
   writer.OnProcessed( [&]( size_t numProcessed, size_t numEnqueued ) {
-    progress.Set( ProgressType::WriteHits, numProcessed, numEnqueued );
-  } );
+                        progress.Set( ProgressType::WriteHits, numProcessed, numEnqueued );
+                      } );
 
-  auto qryReader = DetectFileFormatAndOpenReader< A >( queryPath, FileFormat::FASTA );
+  std::unique_ptr< SequenceReader< DNA > > qryReader( new FASTA::Reader< DNA >( query_table ) );
 
-  SequenceList< A > queries;
+  SequenceList< DNA > queries;
   progress.Activate( ProgressType::ReadQueryFile );
   while( !qryReader->EndOfFile() ) {
     qryReader->Read( numQueriesPerWorkItem, &queries );
@@ -193,12 +237,138 @@ bool DoSearch( const std::string& queryPath, const std::string& databasePath,
   progress.Activate( ProgressType::WriteHits );
   writer.WaitTillDone();
 
-  return true;
+  std::cout << "\n";
 }
 
-// Explicit instantiation
-template bool DoSearch< DNA >( const std::string&, const std::string&,
-                               const std::string&, const SearchParams< DNA >& );
-template bool DoSearch< Protein >( const std::string&, const std::string&,
-                                   const std::string&,
-                                   const SearchParams< Protein >& );
+void protein_blast(std::string query_table,
+                   std::string db_table,
+                   std::string output_file,
+                   int maxAccepts = 1,
+                   int maxRejects =  16,
+                   double minIdentity = 0.75) 
+{
+
+  std::unique_ptr< SequenceReader< Protein > > dbReader( new FASTA::Reader< Protein >( db_table ) );
+  
+  Sequence< Protein > seq;
+  SequenceList< Protein > sequences;
+
+  while( !( dbReader->EndOfFile() ) ) {
+    ( *dbReader ) >> seq;
+    sequences.push_back( std::move( seq ) );
+  }
+
+  ProgressOutput progress;
+
+  enum ProgressType {
+                     ReadDBFile,
+                     StatsDB,
+                     IndexDB,
+                     ReadQueryFile,
+                     SearchDB,
+                     WriteHits
+  };
+
+  progress.Add( ProgressType::ReadDBFile, "Read database", UnitType::BYTES );
+  progress.Add( ProgressType::StatsDB, "Analyze database" );
+  progress.Add( ProgressType::IndexDB, "Index database" );
+  progress.Add( ProgressType::ReadQueryFile, "Read queries", UnitType::BYTES );
+  progress.Add( ProgressType::SearchDB, "Search database" );
+  progress.Add( ProgressType::WriteHits, "Write hits" );
+
+  // Read DB
+  progress.Activate( ProgressType::ReadDBFile );
+  while( !dbReader->EndOfFile() ) {
+    ( *dbReader ) >> seq;
+    sequences.push_back( std::move( seq ) );
+    progress.Set( ProgressType::ReadDBFile, dbReader->NumBytesRead(),
+                  dbReader->NumBytesTotal() );
+  }
+
+  // Index DB
+  Database< Protein > db( WordSize< Protein >::VALUE );
+  db.SetProgressCallback(
+                         [&]( typename Database< Protein >::ProgressType type, size_t num, size_t total ) {
+                           switch( type ) {
+                           case Database< Protein >::ProgressType::StatsCollection:
+                             progress.Activate( ProgressType::StatsDB )
+                               .Set( ProgressType::StatsDB, num, total );
+                             break;
+
+                           case Database< Protein >::ProgressType::Indexing:
+                             progress.Activate( ProgressType::IndexDB )
+                               .Set( ProgressType::IndexDB, num, total );
+                             break;
+
+                           default:
+                             break;
+                           }
+                         } );
+  db.Initialize( sequences );
+
+  // Read and process queries
+  const int numQueriesPerWorkItem = 64;
+  
+  SearchParams< Protein > searchParams;
+
+  searchParams.maxAccepts = maxAccepts;
+  searchParams.maxRejects = maxRejects;
+  searchParams.minIdentity = minIdentity;
+
+  SearchResultsWriter< Protein >   writer( 1, output_file );
+  QueryDatabaseSearcher< Protein > searcher( -1, &writer, &db, searchParams );
+
+  searcher.OnProcessed( [&]( size_t numProcessed, size_t numEnqueued ) {
+                          progress.Set( ProgressType::SearchDB, numProcessed, numEnqueued );
+                        } );
+  writer.OnProcessed( [&]( size_t numProcessed, size_t numEnqueued ) {
+                        progress.Set( ProgressType::WriteHits, numProcessed, numEnqueued );
+                      } );
+
+  std::unique_ptr< SequenceReader< Protein > > qryReader( new FASTA::Reader< Protein >( query_table ) );
+
+  SequenceList< Protein > queries;
+  progress.Activate( ProgressType::ReadQueryFile );
+  while( !qryReader->EndOfFile() ) {
+    qryReader->Read( numQueriesPerWorkItem, &queries );
+    searcher.Enqueue( queries );
+    progress.Set( ProgressType::ReadQueryFile, qryReader->NumBytesRead(),
+                  qryReader->NumBytesTotal() );
+  }
+
+  // Search
+  progress.Activate( ProgressType::SearchDB );
+  searcher.WaitTillDone();
+
+  progress.Activate( ProgressType::WriteHits );
+  writer.WaitTillDone();
+
+  std::cout << "\n";
+}
+
+// Python bindings
+PYBIND11_MODULE(npysesarch, m) {
+    m.doc() = R"pbdoc(
+        npysearch test: BLAST-like algorithm for Python
+        -----------------------
+        .. currentmodule:: Search
+        .. autosummary::
+           :toctree: _generate
+           DNA_search
+           Protein_search
+    )pbdoc";
+
+    m.def("dna_blast", &dna_blast, R"pbdoc(
+        BLAST-like algorithm for poly-nucleotides
+    )pbdoc");
+
+    m.def("protein_blast", &protein_blast, R"pbdoc(
+        BLAST-like algorithm for proteins
+    )pbdoc");
+
+#ifdef VERSION_INFO
+    m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
+#else
+    m.attr("__version__") = "dev";
+#endif
+}
