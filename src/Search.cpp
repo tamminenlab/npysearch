@@ -347,7 +347,7 @@ void protein_blast(std::string query_table,
 }
 
 // Python bindings
-PYBIND11_MODULE(npysesarch, m) {
+PYBIND11_MODULE(npysearch, m) {
     m.doc() = R"pbdoc(
         npysearch test: BLAST-like algorithm for Python
         -----------------------
