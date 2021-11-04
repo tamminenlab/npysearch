@@ -113,20 +113,6 @@ struct WordSize< Protein > {
   static const int VALUE = 5;
 };
 
-// std::string DFtoSeq(DataFrame seq_table)
-// {
-//   std::vector< std::string > ids = seq_table["Id"];
-//   std::vector< std::string > seqs = seq_table["Seq"];
-  
-//   std::stringstream content;
-
-//   for (int i{0}; i < ids.size(); ++i) {
-//     std::string id{ids[i]};
-//     std::string seq{seqs[i]};
-//     content << ">" << id << "\n" << seq << "\n";
-//   }
-//   return content.str();
-// }
 
 void dna_blast(const std::string& queryPath,
                const std::string& databasePath,
@@ -137,7 +123,6 @@ void dna_blast(const std::string& queryPath,
                std::string strand = "both") 
 {
   ProgressOutput progress;
-  // std::unique_ptr< SequenceReader< DNA > > dbReader( new FASTA::Reader< DNA >( db_table ) );
   
   Sequence< DNA > seq;
   SequenceList< DNA > sequences;
@@ -243,8 +228,6 @@ void protein_blast(const std::string& queryPath,
                    double minIdentity = 0.75) 
 {
   ProgressOutput progress;
-
-  // std::unique_ptr< SequenceReader< Protein > > dbReader( new FASTA::Reader< Protein >( db_table ) );
   
   Sequence< Protein > seq;
   SequenceList< Protein > sequences;
@@ -338,36 +321,37 @@ void protein_blast(const std::string& queryPath,
   std::cout << "\n";
 }
 
-// DataFrame read_dna_fasta();
-// DataFrame read_protein_fasta();
-
 // Python bindings
 PYBIND11_MODULE(npysearch, m) {
     m.doc() = R"pbdoc(
         npysearch test: BLAST-like algorithm for Python
         -----------------------
-        .. currentmodule:: Search
-        .. autosummary::
-           :toctree: _generate
-           DNA_search
-           Protein_search
+          DNA_blast
+          Protein_blast
     )pbdoc";
 
     m.def("dna_blast", &dna_blast, R"pbdoc(
-        BLAST-like algorithm for poly-nucleotides
-    )pbdoc");
+          BLAST-like algorithm for poly-nucleotides
+        )pbdoc",
+          py::arg("queryPath"),
+          py::arg("databasePath"),
+          py::arg("outputPath"),
+          py::arg("maxAccepts") = 1,
+          py::arg("maxRejects") = 16,
+          py::arg("minIdentity") = 0.75,
+          py::arg("strand" = "both")
+    );
 
     m.def("protein_blast", &protein_blast, R"pbdoc(
-        BLAST-like algorithm for proteins
-    )pbdoc");
-
-    // m.def("read_dna_fasta", &read_dna_fasta, R"pbdoc(
-    //     Read nucleotide FASTA files
-    // )pbdoc");
-
-    // m.def("read_protein_fasta", &read_protein_fasta, R"pbdoc(
-    //     Read protein FASTA files
-    // )pbdoc");
+          BLAST-like algorithm for proteins
+        )pbdoc",
+          py::arg("queryPath"),
+          py::arg("databasePath"),
+          py::arg("outputPath"),
+          py::arg("maxAccepts") = 1,
+          py::arg("maxRejects") = 16,
+          py::arg("minIdentity") = 0.75
+    );
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
