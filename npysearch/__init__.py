@@ -152,8 +152,9 @@ def blast(query,
     if outputToFile:
         return csvPath
     else:
+        output = readCSV(csvPath)
         os.remove(csvPath)
-        return readCSV(csvPath)
+        return output
 
 
 
