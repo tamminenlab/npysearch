@@ -43,7 +43,7 @@ def readFasta(filepath):
     """
     Simple FASTA file reader
     Input:
-        filepath  = str, path to file
+        filepath  = str, path to the fasta file to be read
     Output:
         sequences = dict, keys = sequence id, values = sequence. Both keys and values are strings.
     """
@@ -66,11 +66,18 @@ def readFasta(filepath):
     return sequences
 
 def writeFasta(filepath, sequences):
-
+    """
+    Simple FASTA file writer
+    Input:
+        filepath  = str, path to the fasta file to be written
+        sequences = dict, keys = sequence id, values = sequence. Both keys and values are strings.
+    Output:
+        None
+    """
     with open(filepath, 'w') as f:
         for sequence_name in sequences.keys():
-            f.write("> " + sequence_name)
-            f.write(sequences[sequence_name])
+            f.write("> " + sequence_name + "\n")
+            f.write(sequences[sequence_name] + "\n")
 
     return None
 
