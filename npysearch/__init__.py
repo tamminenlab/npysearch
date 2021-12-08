@@ -143,17 +143,29 @@ def writeCSV(filepath, csvPath):
     return None
 
 def readCSV(filepath):
+    """
+    Simple CSV reader function required for blast function to output results as a dictionary
+    Input:
+        filepath   = str, path to the CSV file containing blast results
+    Output:
+        dictionary = dict, keys = column names, values = columns. Contains 5 str, 8 int, and 1 float columns.
+    """
     with open(filepath, "r") as f:
+        # Column names
         header = f.readline().strip().split(",")
         
+        # Rest of the results as a list of lists
         data = [line.strip().split(",") for line in f.readlines()]
-        data = list(map(list, zip(*data))) # Transposing list of lists
+        #Transposing the list of lists
+        data = list(map(list, zip(*data)))
 
+        # Converting type for the int and float columns
         intIndices = [2,3,4,5,8,9,10,11]
         data = [list(map(int, column)) if i in intIndices else column for i,column in enumerate(data)]
         floatIndices = [12]
         data = [list(map(float, column)) if i in floatIndices else column for i,column in enumerate(data)]
 
+        # Creating the dictionary
         dictionary = dict(zip(header, data))
 
     return dictionary
