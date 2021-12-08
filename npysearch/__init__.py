@@ -172,16 +172,29 @@ def readCSV(filepath):
 
 
 
-def blast(query,
-          database,
-          maxAccepts = 1,
-          maxRejects = 16,
-          minIdentity = 0.75,
-          alphabet = "nucleotide",
-          strand = "both",
-          pathsUsed = False,
-          outputToFile = False):
-    
+def blast(query, database, maxAccepts = 1, maxRejects = 16, minIdentity = 0.75, alphabet = "nucleotide", strand = "both", pathsUsed = False, outputToFile = False):
+    """
+    Runs BLAST sequence comparison algorithm
+    Input:
+        query        = dict or str. Either a dictionary of sequences with sequence ids as keys and sequences as values (Use pathsUsed = False (Default)), or 
+                       a path string to the fasta file containing the sequences (Use pathsUsed = True).
+        database     = dict or str. Either a dictionary of sequences with sequence ids as keys and sequences as values (Use pathsUsed = False (Default)), or 
+                       a path string to the fasta file containing the sequences (Use pathsUsed = True). Ensure same type as query.
+        maxAccepts   = int, number specifying the maximum accepted hits (Default = 1)
+        maxRejects   = int, number specifying the maximum rejected hits (Default = 16)
+        minIdentity  = float, number specifying the minimal accepted sequence similarity between the query and database sequences (Default = 0.75)
+        alphabet     = str, "nucleotide" or "protein" to specify the query and database alphabet (Default = "nucleotide")
+        strand       = str, specify the strand to search: "plus", "minus", or "both". Only affects nucleotide searches. (Default = "both")
+        pathsUsed    = boolean, set to True if query and database were input using paths to the fasta files and False if query and database were input as dictionaries
+                       (Default = False)
+        outputToFile = boolean, set to True to get the results table as a csv file in the working directory and False to return the results as a dictionary of lists
+                       (Default = False)
+    Output:
+        table        = dict of lists, results table in the form of a dict of lists with column names as keys and columns as values.
+                       Contains 5 str, 8 int, and 1 float columns. Can be converted easily to a pandas dataframe using pandas.DataFrame.from_dict()
+                OR
+        csvPath      = str, path to the csv file containing the results, stored in the working directory
+    """
     startTime = strftime("%Y-%m-%d-%H:%M:%S", localtime())
     
     if pathsUsed:
@@ -213,9 +226,9 @@ def blast(query,
     if outputToFile:
         return csvPath
     else:
-        output = readCSV(csvPath)
+        table = readCSV(csvPath)
         os.remove(csvPath)
-        return output
+        return table
 
 
 
