@@ -3,7 +3,7 @@ import os
 from time import localtime, strftime
 
 
-def cigarString(query, alignment, target):
+def cigarString(query, target):
     """
     Generates cigar string from query and target sequences, with '-'s for gaps in alignment
 
@@ -83,8 +83,6 @@ def writeCSV(filepath, csvPath):
                     row[3] = line.strip().split()[-1].strip()
                     row[6] = line.strip().split()[3].strip()
                     start = line.index("+") + 2
-                if i%13==8:
-                    alignment = line[start:].strip("\n")
                 if i%13==9:
                     row[4] = line.strip().split()[1].strip()
                     row[5] = line.strip().split()[-1].strip()
@@ -96,7 +94,7 @@ def writeCSV(filepath, csvPath):
                     row[11] = line.split()[5].strip()
                     row[12] = str(float(line.split()[4][1:-3])/100)
                     # row[13] = "-"
-                    row[13] = cigarString(query = row[6], alignment = alignment, target = row[7])
+                    row[13] = cigarString(query = row[6], target = row[7])
                 if i%13==12:
                     csvFile.write(",".join(row) + "\n")
                     row = [None] * 14
