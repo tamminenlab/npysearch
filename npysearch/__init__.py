@@ -2,13 +2,24 @@ from _npysearch import *
 import os
 from time import localtime, strftime
 
-def test():
-    print("This function works.")
-
-    return None
 
 def cigarString(query, alignment, target):
+    """
+    Generates cigar string from query and target sequences, with '-'s for gaps in alignment
 
+    Input:
+        query     = str, with '-' for gap in alignment
+        target    = str, same size as query, with '-' for gap in alignment
+    Output:
+        cigar     = str, cigar string with integer (count) followed by one of 'X' (mutation),
+                    'D' (gap), or '=' (match)
+    """
+    # Ensuring that query and target lengths are equal
+    assert len(query) == len(target), "Query and Target strings need to be of the same size."
+
+    # Checking of mismatches
+    alignment = "".join(["|" if query[i]==target[i] else " " for i in range(len(query))])
+    
     # Modifying alignment so that it contains - for gaps instead of blank space
     alignment = "".join([alignment[i] if query[i] != "-" else query[i] for i in range(len(alignment))])
     alignment = "".join([alignment[i] if target[i] != "-" else target[i] for i in range(len(alignment))])
@@ -22,7 +33,6 @@ def cigarString(query, alignment, target):
             counter +=1
         else:
             cigar = cigar + str(counter) + matcher[flag]
-
             flag = character
             counter = 1
     cigar = cigar + str(counter) + matcher[flag]
