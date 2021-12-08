@@ -40,6 +40,14 @@ def cigarString(query, target):
     return cigar
 
 def readFasta(filepath):
+    """
+    Simple FASTA file reader
+    Input:
+        filepath  = str, path to file
+    Output:
+        sequences = dict, keys = sequence id, values = sequence. Both keys and values are strings.
+    """
+    # Ensure file exists
     if not os.path.isfile(filepath):
         raise IOError("File does not exist.")
 
@@ -47,9 +55,11 @@ def readFasta(filepath):
     with open(filepath, 'r') as f:
         lines = f.readlines()
         for line in lines:
-            if line[0] == ">":
+            if line.strip()[0] == ">":
                 current_sequence = line.strip()[1:]
                 sequences[current_sequence] = ""
+            elif line.strip() == "":
+                continue
             else:
                 sequences[current_sequence] += line.strip()
 
