@@ -65,19 +65,30 @@ def readFasta(filepath):
 
     return sequences
 
-def writeFasta(filepath, sequences):
+def writeFasta(filepath, sequences, wrapAfter = 0):
     """
     Simple FASTA file writer
     Input:
         filepath  = str, path to the fasta file to be written
         sequences = dict, keys = sequence id, values = sequence. Both keys and values are strings.
+        wrapAfter = int, whole number indicating number of characters in each line of sequence in the file.
+                    0 indicates no wrapping.
     Output:
         None
     """
+    # Check that wrapAfter is a whole number
+    assert isinstance(wrapAfter, int) and wrapAfter >= 0, "wrapAfter must be a whole number of type int."
     with open(filepath, 'w') as f:
-        for sequence_name in sequences.keys():
-            f.write("> " + sequence_name + "\n")
-            f.write(sequences[sequence_name] + "\n")
+        if wrapAfter == 0:
+            for sequence_name in sequences.keys():
+                f.write("> " + sequence_name + "\n")
+                f.write(sequences[sequence_name] + "\n")
+        else:
+            for sequence_name in sequences.keys():
+                f.write("> " + sequence_name + "\n")
+                indices = list(range(0, len(sequences[sequence_name], wrapAfter))) + [-1]
+                for i in range(len(indices)-1):
+                    f.write(sequences[sequence_name][indices[i]:indices[i+1]] + "\n")
 
     return None
 
