@@ -67,22 +67,25 @@ def readFasta(filepath):
 
 def writeFasta(filepath, sequences, wrapAfter = 0):
     """
-    Simple FASTA file writer
+    Simple FASTA file writer. Use wrapAfter to have sequences wrap after a given number of characters.
     Input:
         filepath  = str, path to the fasta file to be written
         sequences = dict, keys = sequence id, values = sequence. Both keys and values are strings.
         wrapAfter = int, whole number indicating number of characters in each line of sequence in the file.
-                    0 indicates no wrapping.
+                    0 indicates no wrapping. (Default = 0)
     Output:
         None
     """
     # Check that wrapAfter is a whole number
     assert isinstance(wrapAfter, int) and wrapAfter >= 0, "wrapAfter must be a whole number of type int."
+
     with open(filepath, 'w') as f:
+        # No Wrapping
         if wrapAfter == 0:
             for sequence_name in sequences.keys():
                 f.write("> " + sequence_name + "\n")
                 f.write(sequences[sequence_name] + "\n")
+        # Wrapping
         else:
             for sequence_name in sequences.keys():
                 f.write("> " + sequence_name + "\n")
@@ -93,11 +96,21 @@ def writeFasta(filepath, sequences, wrapAfter = 0):
     return None
 
 def writeCSV(filepath, csvPath):
+    """
+    Function to read the text output file from the dna_blast and protein_blast functions written in C++
+    Input:
+        filepath  = str, path to the output file, written by dna_blast or protein_blast
+        csvPath   = str, path to the csv output file to be written
+    Output:
+        None
+    """
+    # Column names for the csv file
     header = ["QueryId", "TargetId", "QueryMatchStart",
               "QueryMatchEnd", "TargetMatchStart", "TargetMatchEnd",
               "QueryMatchSeq", "TargetMatchSeq", "NumColumns", "NumMatches",
               "NumMismatches", "NumGaps", "Identity", "Alignment"]
 
+    # Reading the output file line by line and writing it to csv
     with open(csvPath, "w") as csvFile:
         csvFile.write(",".join(header) + "\n")
         with open(filepath, "r") as f:
