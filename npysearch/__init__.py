@@ -282,7 +282,7 @@ def blast(query, database, maxAccepts = 1, maxRejects = 16,
         writeFasta(databasePath, database)
     
     else:
-        raise TypeError("database must be of type string or dict")
+        raise TypeError("Database must be of type string or dict")
 
     outputPath = "output_" + startTime + ".txt"
 
