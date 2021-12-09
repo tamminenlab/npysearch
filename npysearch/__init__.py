@@ -5,22 +5,28 @@ from time import localtime, strftime
 
 def cigarString(query, target):
     """
-    Generates cigar string from query and target sequences, with '-'s for gaps in alignment
+    Generates cigar string from query and target sequences, with '-'s 
+    for gaps in alignment
 
-    Input:
-        query     = str, with '-' for gap in alignment
-        target    = str, same size as query, with '-' for gap in alignment
-    Output:
-        cigar     = str, cigar string with integer (count) followed by one of 'X' (mutation),
-                    'D' (gap), or '=' (match)
+    Input
+    -----
+    query     = str, with '-' for gap in alignment
+    target    = str, same size as query, with '-' for gap in alignment
+    
+    Output
+    ------
+    cigar     = str, cigar string with integer (count) followed by one
+                of 'X' (mutation), 'D' (gap), or '=' (match)
     """
+
     # Ensuring that query and target lengths are equal
     assert len(query) == len(target), "Query and Target strings need to be of the same size."
 
     # Checking of mismatches
     alignment = "".join(["|" if query[i]==target[i] else " " for i in range(len(query))])
     
-    # Modifying alignment so that it contains - for gaps instead of blank space
+    # Modifying alignment so that it contains - for gaps instead of 
+    # blank space
     alignment = "".join([alignment[i] if query[i] != "-" else query[i] for i in range(len(alignment))])
     alignment = "".join([alignment[i] if target[i] != "-" else target[i] for i in range(len(alignment))])
 
@@ -42,11 +48,17 @@ def cigarString(query, target):
 def readFasta(filepath):
     """
     Simple FASTA file reader
-    Input:
-        filepath  = str, path to the fasta file to be read
-    Output:
-        sequences = dict, keys = sequence id, values = sequence. Both keys and values are strings.
+
+    Input
+    -----
+    filepath  = str, path to the fasta file to be read
+    
+    Output
+    ------
+    sequences = dict, keys = sequence id, values = sequence. Both keys
+                and values are strings.
     """
+
     # Ensure file exists
     if not os.path.isfile(filepath):
         raise IOError("File does not exist.")
@@ -67,15 +79,23 @@ def readFasta(filepath):
 
 def writeFasta(filepath, sequences, wrapAfter = 0):
     """
-    Simple FASTA file writer. Use wrapAfter to have sequences wrap after a given number of characters.
-    Input:
-        filepath  = str, path to the fasta file to be written
-        sequences = dict, keys = sequence id, values = sequence. Both keys and values are strings.
-        wrapAfter = int, whole number indicating number of characters in each line of sequence in the file.
-                    0 indicates no wrapping. (Default = 0)
-    Output:
-        None
+    Simple FASTA file writer. Use wrapAfter to have sequences wrap 
+    after a given number of characters.
+    
+    Input
+    -----
+    filepath  = str, path to the fasta file to be written
+    sequences = dict, keys = sequence id, values = sequence. Both keys
+                and values are strings.
+    wrapAfter = int, whole number indicating number of characters in 
+                each line of sequence in the file. 
+                0 indicates no wrapping. (Default = 0)
+    
+    Output
+    ------
+    None
     """
+    
     # Check that wrapAfter is a whole number
     assert isinstance(wrapAfter, int) and wrapAfter >= 0, "wrapAfter must be a whole number of type int."
 
@@ -97,13 +117,20 @@ def writeFasta(filepath, sequences, wrapAfter = 0):
 
 def writeCSV(filepath, csvPath):
     """
-    Function to read the text output file from the dna_blast and protein_blast functions written in C++
-    Input:
-        filepath  = str, path to the output file, written by dna_blast or protein_blast
-        csvPath   = str, path to the csv output file to be written
-    Output:
-        None
+    Function to read the text output file from the dna_blast and 
+    protein_blast functions written in C++
+    
+    Input
+    -----
+    filepath  = str, path to the output file, written by dna_blast
+                or protein_blast
+    csvPath   = str, path to the csv output file to be written
+    
+    Output
+    ------
+    None
     """
+    
     # Column names for the csv file
     header = ["QueryId", "TargetId", "QueryMatchStart",
               "QueryMatchEnd", "TargetMatchStart", "TargetMatchEnd",
@@ -144,12 +171,19 @@ def writeCSV(filepath, csvPath):
 
 def readCSV(filepath):
     """
-    Simple CSV reader function required for blast function to output results as a dictionary
-    Input:
-        filepath   = str, path to the CSV file containing blast results
-    Output:
-        dictionary = dict, keys = column names, values = columns. Contains 5 str, 8 int, and 1 float columns.
+    Simple CSV reader function required for blast function to output
+    results as a dictionary
+
+    Input
+    -----
+    filepath   = str, path to the CSV file containing blast results
+    
+    Output
+    ------
+    dictionary = dict, keys = column names, values = columns. 
+                 Contains 5 str, 8 int, and 1 float columns.
     """
+
     with open(filepath, "r") as f:
         # Column names
         header = f.readline().strip().split(",")
@@ -172,29 +206,58 @@ def readCSV(filepath):
 
 
 
-def blast(query, database, maxAccepts = 1, maxRejects = 16, minIdentity = 0.75, alphabet = "nucleotide", strand = "both", pathsUsed = False, outputToFile = False):
+def blast(query, database, maxAccepts = 1, maxRejects = 16, 
+          minIdentity = 0.75, alphabet = "nucleotide", strand = "both",
+          pathsUsed = False, outputToFile = False):
     """
     Runs BLAST sequence comparison algorithm
-    Input:
-        query        = dict or str. Either a dictionary of sequences with sequence ids as keys and sequences as values (Use pathsUsed = False (Default)), or 
-                       a path string to the fasta file containing the sequences (Use pathsUsed = True).
-        database     = dict or str. Either a dictionary of sequences with sequence ids as keys and sequences as values (Use pathsUsed = False (Default)), or 
-                       a path string to the fasta file containing the sequences (Use pathsUsed = True). Ensure same type as query.
-        maxAccepts   = int, number specifying the maximum accepted hits (Default = 1)
-        maxRejects   = int, number specifying the maximum rejected hits (Default = 16)
-        minIdentity  = float, number specifying the minimal accepted sequence similarity between the query and database sequences (Default = 0.75)
-        alphabet     = str, "nucleotide" or "protein" to specify the query and database alphabet (Default = "nucleotide")
-        strand       = str, specify the strand to search: "plus", "minus", or "both". Only affects nucleotide searches. (Default = "both")
-        pathsUsed    = boolean, set to True if query and database were input using paths to the fasta files and False if query and database were input as dictionaries
-                       (Default = False)
-        outputToFile = boolean, set to True to get the results table as a csv file in the working directory and False to return the results as a dictionary of lists
-                       (Default = False)
-    Output:
-        table        = dict of lists, results table in the form of a dict of lists with column names as keys and columns as values.
-                       Contains 5 str, 8 int, and 1 float columns. Can be converted easily to a pandas dataframe using pandas.DataFrame.from_dict()
-                OR
-        csvPath      = str, path to the csv file containing the results, stored in the working directory
+
+    Input
+    -----
+    query        = dict or str. Either a dictionary of sequences with 
+                   sequence ids as keys and sequences as values (Use
+                   pathsUsed = False (Default)), or a path string to 
+                   the fasta file containing the sequences (Use 
+                   pathsUsed = True).
+    database     = dict or str. Either a dictionary of sequences with
+                   sequence ids as keys and sequences as values (Use
+                   pathsUsed = False (Default)), or a path string to
+                   the fasta file containing the sequences (Use 
+                   pathsUsed = True). Ensure same type as query.
+    maxAccepts   = int, number specifying the maximum accepted hits 
+                   (Default = 1)
+    maxRejects   = int, number specifying the maximum rejected hits 
+                   (Default = 16)
+    minIdentity  = float, number specifying the minimal accepted 
+                   sequence similarity between the query and database
+                   sequences (Default = 0.75)
+    alphabet     = str, "nucleotide" or "protein" to specify the query
+                   and database alphabet (Default = "nucleotide")
+    strand       = str, specify the strand to search: "plus", "minus",
+                   or "both". Only affects nucleotide searches. 
+                   (Default = "both")
+    pathsUsed    = boolean, set to True if query and database were 
+                   input using paths to the fasta files and False if
+                   query and database were input as dictionaries
+                   (Default = False)
+    outputToFile = boolean, set to True to get the results table as a
+                   csv file in the working directory and False to 
+                   return the results as a dictionary of lists
+                   (Default = False)
+    
+    Output
+    ------
+    table        = dict of lists, results table in the form of a dict
+                   of lists with column names as keys and columns as 
+                   values. Contains 5 str, 8 int, and 1 float columns.
+                   Can be converted easily to a pandas dataframe using
+                   pandas.DataFrame.from_dict()
+        OR
+
+    csvPath      = str, path to the csv file containing the results, 
+                   stored in the working directory
     """
+
     startTime = strftime("%Y-%m-%d-%H:%M:%S", localtime())
     
     if pathsUsed:
@@ -229,10 +292,3 @@ def blast(query, database, maxAccepts = 1, maxRejects = 16, minIdentity = 0.75, 
         table = readCSV(csvPath)
         os.remove(csvPath)
         return table
-
-
-
-
-
-
-    
