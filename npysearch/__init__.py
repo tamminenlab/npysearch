@@ -208,22 +208,18 @@ def readCSV(filepath):
 
 def blast(query, database, maxAccepts = 1, maxRejects = 16, 
           minIdentity = 0.75, alphabet = "nucleotide", strand = "both",
-          pathsUsed = False, outputToFile = False):
+          outputToFile = False):
     """
     Runs BLAST sequence comparison algorithm
 
     Input
     -----
     query        = dict or str. Either a dictionary of sequences with 
-                   sequence ids as keys and sequences as values (Use
-                   pathsUsed = False (Default)), or a path string to 
-                   the fasta file containing the sequences (Use 
-                   pathsUsed = True).
+                   sequence ids as keys and sequences as values, or a
+                   path str to the fasta file containing the sequences
     database     = dict or str. Either a dictionary of sequences with
-                   sequence ids as keys and sequences as values (Use
-                   pathsUsed = False (Default)), or a path string to
-                   the fasta file containing the sequences (Use 
-                   pathsUsed = True). Ensure same type as query.
+                   sequence ids as keys and sequences as values, or a
+                   path str to the fasta file containing the sequences
     maxAccepts   = int, number specifying the maximum accepted hits 
                    (Default = 1)
     maxRejects   = int, number specifying the maximum rejected hits 
@@ -236,10 +232,6 @@ def blast(query, database, maxAccepts = 1, maxRejects = 16,
     strand       = str, specify the strand to search: "plus", "minus",
                    or "both". Only affects nucleotide searches. 
                    (Default = "both")
-    pathsUsed    = boolean, set to True if query and database were 
-                   input using paths to the fasta files and False if
-                   query and database were input as dictionaries
-                   (Default = False)
     outputToFile = boolean, set to True to get the results table as a
                    csv file in the working directory and False to 
                    return the results as a dictionary of lists
@@ -260,15 +252,37 @@ def blast(query, database, maxAccepts = 1, maxRejects = 16,
 
     startTime = strftime("%Y-%m-%d-%H:%M:%S", localtime())
     
-    if pathsUsed:
+    # Checking what form the query was input in
+    # str for path to fasta file and dict for sequences
+    # If dict, write to file
+    if type(query) == str:
         queryPath = query
-        databasePath = database
-    else:
-        queryPath = "query_" + startTime + ".fasta"
-        databasePath = "database_" + startTime + ".fasta"
+        # Ensure file exists
+        if not os.path.isfile(queryPath):
+            raise IOError("Query file does not exist.")
 
+    elif type(query) == dict:
+        queryPath = "query_" + startTime + ".fasta"
         writeFasta(queryPath, query)
+    
+    else:
+        raise TypeError("query must be of type string or dict")
+
+    # Checking what form the database was input in
+    # str for path to fasta file and dict for sequences
+    # If dict, write to file
+    if type(database) == str:
+        databasePath = database
+        # Ensure file exists
+        if not os.path.isfile(databasePatha):
+            raise IOError("Database file does not exist.")
+
+    elif type(database) == dict:
+        databasePath = "database_" + startTime + ".fasta"
         writeFasta(databasePath, database)
+    
+    else:
+        raise TypeError("database must be of type string or dict")
 
     outputPath = "output_" + startTime + ".txt"
 
@@ -280,10 +294,13 @@ def blast(query, database, maxAccepts = 1, maxRejects = 16,
     csvPath = "output_" + strftime("%Y-%m-%d-%H:%M:%S", localtime()) + ".csv"
     writeCSV(outputPath, csvPath)
 
-    # Delete query, database, and output files
-    if not pathsUsed:
+    # Delete query, database, and output files, if they were 
+    # constructed in this function
+    if type(query) == dict:
         os.remove(queryPath)
+    if type(database) == dict:
         os.remove(databasePath)
+        
     os.remove(outputPath)
 
     if outputToFile:
