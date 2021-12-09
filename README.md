@@ -33,11 +33,10 @@ results_dna = blast(query, database)
 
 results_prot = blast(query = "npysearch/inst/extdata/prot.fasta",
 					database = "npysearch/inst/extdata/prot.fasta",
-					alphabet = "protein",
-					pathsUsed = True)
+					alphabet = "protein")
 ```
 
 ## Caveats
 
-* Use the `pathsUsed` argument to control whether to pass string paths to fasta files or dictionary of sequences as input.
+* The `blast` function automatically detects whether the query and database arguments were passed as string paths to fasta files or as dictionaries of sequences. Both of them need not be input as the same type.
 * Use `help(npy)` (assuming you've imported npysearch as npy) to get a list of all the functions implemented and their docstrings. For docstrings of specific functions, for example blast, use `help(npy.blast)`
