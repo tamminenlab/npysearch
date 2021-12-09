@@ -274,7 +274,7 @@ def blast(query, database, maxAccepts = 1, maxRejects = 16,
     if type(database) == str:
         databasePath = database
         # Ensure file exists
-        if not os.path.isfile(databasePatha):
+        if not os.path.isfile(databasePath):
             raise IOError("Database file does not exist.")
 
     elif type(database) == dict:
@@ -300,7 +300,7 @@ def blast(query, database, maxAccepts = 1, maxRejects = 16,
         os.remove(queryPath)
     if type(database) == dict:
         os.remove(databasePath)
-        
+
     os.remove(outputPath)
 
     if outputToFile:
