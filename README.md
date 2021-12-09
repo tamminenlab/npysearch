@@ -32,8 +32,8 @@ results_dna = blast(query, database)
 # BLAST protein sequence file against itself using filenames as blast function arguments
 
 results_prot = blast(query = "npysearch/inst/extdata/prot.fasta",
-					database = "npysearch/inst/extdata/prot.fasta",
-					alphabet = "protein")
+                     database = "npysearch/inst/extdata/prot.fasta",
+                     alphabet = "protein")
 ```
 
 ## Caveats
