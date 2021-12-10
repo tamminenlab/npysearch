@@ -1,17 +1,21 @@
 import sys
+import os
 
 from pybind11 import get_cmake_dir
 # Available at setup time due to pyproject.toml
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup, find_packages
 
-__version__ = "1.0.0"
+__version__ = "1.0.6"
+
+this_dir = os.path.dirname(os.path.abspath(__file__))
 
 ext_modules = [
     Pybind11Extension("_npysearch",
         ["src/_npysearch/Search.cpp", "src/_npysearch/TextReader.cpp"],
         define_macros = [('VERSION_INFO', __version__)],
-        include_dirs  = ["include"]
+        include_dirs  = [os.path.join(this_dir, "include"),
+                         os.path.join(this_dir, "src/_npysearch")]
         ),
 ]
 
