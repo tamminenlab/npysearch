@@ -3,8 +3,6 @@
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 namespace py = pybind11;
 
-#include "Search.h"
-
 #include <nsearch/FASTA/Reader.h>
 #include <nsearch/Database.h>
 #include <nsearch/Database/HitWriter.h>
@@ -13,11 +11,13 @@ namespace py = pybind11;
 #include <nsearch/Alphabet/DNA.h>
 #include <nsearch/Alphabet/Protein.h>
 
+#include <Search.h>
+
 #include <string>
 #include <memory>
 #include <stdexcept>
 
-#include "Common.h"
+#include <Common.h>
 #include "FileFormat.h"
 #include "WorkerQueue.h"
 
