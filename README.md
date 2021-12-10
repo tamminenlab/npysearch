@@ -24,7 +24,7 @@ import npysearch as npy
 query = npy.readFasta("npysearch/inst/extdata/query.fasta")
 
 # Read database file into a dictionary
-database = npy.raedFasta("npysearch/inst/extdata/db.fasta")
+database = npy.readFasta("npysearch/inst/extdata/db.fasta")
 
 # BLAST the query against the database
 results_dna = blast(query, database)
