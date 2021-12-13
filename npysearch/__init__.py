@@ -1,6 +1,6 @@
 """
 Please refer to the documentation provided in the README.md,
-which can be found at npysearch's PyPI URL: https://test.pypi.org/project/npysearch/
+which can be found at npysearch's PyPI URL: https://pypi.org/project/npysearch/
 """
 
 __all__ = ["blast", "read_fasta", "write_fasta", "cigar_string"]
