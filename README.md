@@ -5,6 +5,15 @@ npysearch implements an efficient BLAST-like sequence comparison algorithm, writ
 
 ## Installation
 
+### from pypi
+
+```
+pip install npysearch
+```
+
+
+### from github
+
 ```
 # Clone repository from github
 git clone https://github.com/jeevannavar/npysearch.git
@@ -21,10 +30,10 @@ pip3 install ./npysearch
 import npysearch as npy
 
 # Read query file into a dictionary
-query = npy.readFasta("npysearch/inst/extdata/query.fasta")
+query = npy.read_fasta("npysearch/inst/extdata/query.fasta")
 
 # Read database file into a dictionary
-database = npy.readFasta("npysearch/inst/extdata/db.fasta")
+database = npy.read_fasta("npysearch/inst/extdata/db.fasta")
 
 # BLAST the query against the database
 results_dna = blast(query, database)
@@ -39,4 +48,4 @@ results_prot = blast(query = "npysearch/inst/extdata/prot.fasta",
 ## Caveats
 
 * The `blast` function automatically detects whether the query and database arguments were passed as string paths to fasta files or as dictionaries of sequences. Both of them need not be input as the same type.
-* Use `help(npy)` (assuming you've imported npysearch as npy) to get a list of all the functions implemented and their docstrings. For docstrings of specific functions, for example blast, use `help(npy.blast)`
+* Use `help(npy)` (assuming you've imported npysearch as npy) to get a list of the functions included and their docstrings. For docstrings of specific functions, for example blast, use `help(npy.blast)`
