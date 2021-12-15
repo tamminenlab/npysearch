@@ -6,7 +6,7 @@ from pybind11 import get_cmake_dir
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup, find_packages
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -41,8 +41,6 @@ classifiers=[
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
     'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9'
 ]
 
@@ -52,7 +50,7 @@ setup(
     author           = "Aditya Jeevannavar",
     author_email     = "adjeev@utu.fi",
     url              = "https://github.com/jeevannavar/npysearch",
-    description      = "Python bindings for nsearch",
+    description      = "Python bindings for nsearch, an efficient BLAST-like sequence comparison algorithm written in C++",
     long_description = long_description,
     long_description_content_type="text/markdown",
     packages         = ["npysearch"],
