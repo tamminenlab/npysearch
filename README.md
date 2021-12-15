@@ -19,7 +19,7 @@ pip install npysearch
 git clone https://github.com/jeevannavar/npysearch.git
 
 # Install package using pip
-pip3 install ./npysearch
+pip install ./npysearch
 ```
 
 
