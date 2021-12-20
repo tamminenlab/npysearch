@@ -11,6 +11,20 @@ npysearch implements an efficient BLAST-like sequence comparison algorithm, writ
 pip install npysearch
 ```
 
+### from conda-forge
+
+Installing from the `conda-forge` channel can be achieved by adding `conda-forge` to your channes with:
+```
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+```
+You can skip the above step if `conda-forge` channel has been added already.
+
+Once the conda-forge channel has been enabled, `npysearch` can be installed with:
+
+```
+conda install npysearch
+```
 
 ### from github
 
