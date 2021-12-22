@@ -174,7 +174,7 @@ def blast(
     else:
         raise TypeError("database must be of type string or dict")
 
-    outputPath = "output_" + startTime + ".txt"
+    outputPath = "output_" + startTime + ".csv"
 
     if alphabet == "nucleotide":
         dna_blast(
@@ -191,9 +191,6 @@ def blast(
             queryPath, databasePath, outputPath, maxAccepts, maxRejects, minIdentity
         )
 
-    csvPath = "output_" + strftime("%Y-%m-%d-%H:%M:%S", localtime()) + ".csv"
-    write_csv(outputPath, csvPath)
-
     # Delete query, database, and output files, if they were
     # constructed in this function
     if type(query) == dict:
@@ -201,13 +198,11 @@ def blast(
     if type(database) == dict:
         os.remove(databasePath)
 
-    os.remove(outputPath)
-
     if outputToFile:
-        return csvPath
+        return outputPath
     else:
-        table = read_csv(csvPath)
-        os.remove(csvPath)
+        table = read_csv(outputPath)
+        os.remove(outputPath)
         return table
 
 
@@ -260,73 +255,6 @@ def cigar_string(query, target):
     cigar = cigar + str(counter) + matcher[flag]
 
     return cigar
-
-
-def write_csv(filepath, csvPath):
-    """
-    Function to read the text output file from the dna_blast and
-    protein_blast functions written in C++
-
-    Input
-    -----
-    filepath  = str, path to the output file, written by dna_blast
-                or protein_blast
-    csvPath   = str, path to the csv output file to be written
-
-    Output
-    ------
-    None
-    """
-
-    # Column names for the csv file
-    header = [
-        "QueryId",
-        "TargetId",
-        "QueryMatchStart",
-        "QueryMatchEnd",
-        "TargetMatchStart",
-        "TargetMatchEnd",
-        "QueryMatchSeq",
-        "TargetMatchSeq",
-        "NumColumns",
-        "NumMatches",
-        "NumMismatches",
-        "NumGaps",
-        "Identity",
-        "Alignment",
-    ]
-
-    # Reading the output file line by line and writing it to csv
-    with open(csvPath, "w") as csvFile:
-        csvFile.write(",".join(header) + "\n")
-        with open(filepath, "r") as f:
-            row = [None] * 14
-            for i, line in enumerate(f):
-                if i % 13 == 4:
-                    row[0] = line.strip().split()[2][1:].strip()
-                    row[1] = line.strip().split()[2][1:].strip()
-                if i % 13 == 7:
-                    row[2] = line.strip().split()[1].strip()
-                    row[3] = line.strip().split()[-1].strip()
-                    row[6] = line.strip().split()[3].strip()
-                    start = line.index("+") + 2
-                if i % 13 == 9:
-                    row[4] = line.strip().split()[1].strip()
-                    row[5] = line.strip().split()[-1].strip()
-                    row[7] = line.strip().split()[3].strip()
-                if i % 13 == 11:
-                    row[8] = line.split()[0].strip()
-                    row[9] = line.split()[2].strip()
-                    row[10] = str(int(row[8]) - int(row[9]))
-                    row[11] = line.split()[5].strip()
-                    row[12] = str(float(line.split()[4][1:-3]) / 100)
-                    # row[13] = "-"
-                    row[13] = cigar_string(query=row[6], target=row[7])
-                if i % 13 == 12:
-                    csvFile.write(",".join(row) + "\n")
-                    row = [None] * 14
-
-    return None
 
 
 def read_csv(filepath):
