@@ -72,7 +72,7 @@ def write_fasta(filepath, sequences, wrapAfter=0):
         # No Wrapping
         if wrapAfter == 0:
             for sequence_name in sequences.keys():
-                f.write("> " + sequence_name + "\n")
+                f.write(">" + sequence_name + "\n")
                 f.write(sequences[sequence_name] + "\n")
         # Wrapping
         else:
