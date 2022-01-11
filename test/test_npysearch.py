@@ -1,6 +1,6 @@
-from npysearch import read_fasta, write_fasta, blast, cigar_string
+from npysearch import read_fasta, write_fasta, blast, cigar_string, read_csv
 from tempfile import NamedTemporaryFile as nt
-import unittest
+import unittest, uuid, os
 
 
 dna_example = {'DNASeq1': 'ATGCATCGGGCGAATT',
@@ -11,6 +11,21 @@ db_example = {'DBSeq1': 'TTGGATGCATCGGGCGAATTAACC',
 
 prot_example = {'ProtSeq1': 'LERAQC',
                 'ProtSeq2': 'DYMFKW'}
+
+header = ("QueryId,TargetId,QueryMatchStart,QueryMatchEnd,TargetMatch"
+          "Start,TargetMatchEnd,QueryMatchSeq,TargetMatchSeq,NumColum"
+          "ns,NumMatches,NumMismatches,NumGaps,Identity,Alignment\n")
+
+line1 = ("Query1,Ref1,1,16,4,22,ATCGTGTACCAGGATG,ATCGTGTCCCACCAGGATG,"
+         "19,16,0,3,0.842,7=3D9=\n")
+
+line2 = ("Query1,Ref2,16,2,3,17,CATCCTGGTACACGA,CATCCTCGTACACGA,15,14"
+         ",1,0,0.933,6=1X8=\n")
+
+columns = ['QueryId', 'TargetId', 'QueryMatchStart', 'QueryMatchEnd',
+           'TargetMatchStart', 'TargetMatchEnd', 'QueryMatchSeq',
+           'TargetMatchSeq', 'NumColumns', 'NumMatches',
+           'NumMismatches', 'NumGaps', 'Identity', 'Alignment']
 
 class Tests(unittest.TestCase):
 
@@ -49,4 +64,18 @@ class Tests(unittest.TestCase):
         with self.assertRaises(AssertionError):
             cigar_string("AATGC", "TTGC")
 
+    def test_read_csv(self):
+        tmp_name = str(uuid.uuid4()) + ".csv"
+        try:
+            tmp_file = open(tmp_name, "w")
+            tmp_file.write(header)
+            tmp_file.write(line1)
+            tmp_file.write(line2)
+        finally:
+            tmp_file.close()
+            csv_dict = read_csv(tmp_name)
+            os.remove(tmp_name)
+        self.assertEqual(list(csv_dict.keys()), columns)
+        self.assertEqual(csv_dict['QueryId'], ['Query1', 'Query1'])
+        self.assertEqual(csv_dict['TargetId'], ['Ref1', 'Ref2'])
 
