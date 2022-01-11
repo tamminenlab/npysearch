@@ -12,10 +12,6 @@ db_example = {'DBSeq1': 'TTGGATGCATCGGGCGAATTAACC',
 prot_example = {'ProtSeq1': 'LERAQC',
                 'ProtSeq2': 'DYMFKW'}
 
-header = ("QueryId,TargetId,QueryMatchStart,QueryMatchEnd,TargetMatch"
-          "Start,TargetMatchEnd,QueryMatchSeq,TargetMatchSeq,NumColum"
-          "ns,NumMatches,NumMismatches,NumGaps,Identity,Alignment\n")
-
 line1 = ("Query1,Ref1,1,16,4,22,ATCGTGTACCAGGATG,ATCGTGTCCCACCAGGATG,"
          "19,16,0,3,0.842,7=3D9=\n")
 
@@ -68,7 +64,6 @@ class Tests(unittest.TestCase):
         tmp_name = str(uuid.uuid4()) + ".csv"
         try:
             tmp_file = open(tmp_name, "w")
-            tmp_file.write(header)
             tmp_file.write(line1)
             tmp_file.write(line2)
         finally:
