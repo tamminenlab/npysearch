@@ -44,18 +44,18 @@ pip install ./npysearch
 import npysearch as npy
 
 # Read query file into a dictionary
-query = npy.read_fasta("npysearch/inst/extdata/query.fasta")
+query = npy.read_fasta("npysearch/data/query.fasta")
 
 # Read database file into a dictionary
-database = npy.read_fasta("npysearch/inst/extdata/db.fasta")
+database = npy.read_fasta("npysearch/data/db.fasta")
 
 # BLAST the query against the database
 results_dna = blast(query, database)
 
 # BLAST protein sequence file against itself using filenames as blast function arguments
 
-results_prot = blast(query = "npysearch/inst/extdata/prot.fasta",
-                     database = "npysearch/inst/extdata/prot.fasta",
+results_prot = blast(query = "npysearch/data/prot.fasta",
+                     database = "npysearch/data/prot.fasta",
                      alphabet = "protein")
 ```
 
