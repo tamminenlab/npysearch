@@ -6,7 +6,7 @@ from pybind11 import get_cmake_dir
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 from setuptools import setup, find_packages
 
-__version__ = "1.2.0"
+__version__ = "1.3.0"
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -40,7 +40,6 @@ classifiers=[
     # that you indicate whether you support Python 2, Python 3 or both.
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.9'
 ]
 
