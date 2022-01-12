@@ -274,7 +274,10 @@ def read_csv(filepath):
 
     with open(filepath, "r") as f:
         # Column names
-        header = f.readline().strip().split(",")
+        header = ['QueryId', 'TargetId', 'QueryMatchStart', 'QueryMatchEnd',
+                  'TargetMatchStart', 'TargetMatchEnd', 'QueryMatchSeq',
+                  'TargetMatchSeq', 'NumColumns', 'NumMatches',
+                  'NumMismatches', 'NumGaps', 'Identity', 'Alignment']
 
         # Rest of the results as a list of lists
         data = [line.strip().split(",") for line in f.readlines()]
