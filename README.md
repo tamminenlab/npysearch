@@ -30,7 +30,7 @@ conda install npysearch
 
 ```
 # Clone repository from github
-git clone https://github.com/jeevannavar/npysearch.git
+git clone https://github.com/tamminenlab/npysearch.git
 
 # Install package using pip
 pip install ./npysearch
