@@ -8,6 +8,7 @@ __all__ = ["blast", "read_fasta", "write_fasta", "cigar_string"]
 
 import os
 from time import localtime, strftime
+from csv import reader
 from _npysearch import *
 
 
@@ -280,7 +281,7 @@ def read_csv(filepath):
                   'NumMismatches', 'NumGaps', 'Identity', 'Alignment']
 
         # Rest of the results as a list of lists
-        data = [line.strip().split(",") for line in f.readlines()]
+        data = [element for line in f.readlines() for element in list(reader([line], delimiter=",", quotechar='"'))]
         # Transposing the list of lists
         data = list(map(list, zip(*data)))
 
