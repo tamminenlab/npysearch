@@ -50,13 +50,13 @@ query = npy.read_fasta("npysearch/data/query.fasta")
 database = npy.read_fasta("npysearch/data/db.fasta")
 
 # BLAST the query against the database
-results_dna = blast(query, database)
+results_dna = npy.blast(query, database)
 
 # BLAST protein sequence file against itself using filenames as blast function arguments
 
-results_prot = blast(query = "npysearch/data/prot.fasta",
-                     database = "npysearch/data/prot.fasta",
-                     alphabet = "protein")
+results_prot = npy.blast(query = "npysearch/data/prot.fasta",
+                   		 database = "npysearch/data/prot.fasta",
+                     	 alphabet = "protein")
 ```
 
 ## Caveats
