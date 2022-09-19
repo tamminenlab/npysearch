@@ -200,6 +200,12 @@ def blast(
         os.remove(databasePath)
 
     if outputToFile:
+        # Adding header to the output csv file from nsearch
+        with open(outputPath, "r+") as f:
+            old = f.read()
+            f.seek(0)
+            f.write("QueryId,TargetId,QueryMatchStart,QueryMatchEnd,TargetMatchStart,TargetMatchEnd,QueryMatchSeq,TargetMatchSeq,NumColumns,NumMatches,NumMismatches,NumGaps,Identity,Alignment\n"+old)
+
         return outputPath
     else:
         table = read_csv(outputPath)
