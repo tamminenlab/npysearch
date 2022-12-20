@@ -1,6 +1,6 @@
 # npysearch
 
-npysearch implements an efficient BLAST-like sequence comparison algorithm, written in C++11 and using native Python datatypes and bindings. npysearch is light-weight, fast, and dependency-free. The code base of npysearch is adapted from [nsearch](https://github.com/stevschmid/nsearch).
+npysearch implements an efficient BLAST-like sequence comparison algorithm, written in C++11 and using native Python datatypes and bindings. npysearch is light-weight, fast, and dependency-free. The code base of npysearch is adapted from [nsearch](https://github.com/stevschmid/nsearch). An implementation of [nsearch](https://github.com/stevschmid/nsearch) for R is available at [blaster](https://github.com/tamminenlab/blaster).
 
 
 ## Installation
