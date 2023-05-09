@@ -63,3 +63,12 @@ results_prot = npy.blast(query = "npysearch/data/prot.fasta",
 
 * The `blast` function automatically detects whether the query and database arguments were passed as string paths to fasta files or as dictionaries of sequences. Both of them need not be input as the same type.
 * Use `help(npy)` (assuming you've imported npysearch as npy) to get a list of the functions included and their docstrings. For docstrings of specific functions, for example blast, use `help(npy.blast)`
+
+
+## Tested on
+
+- linux\_64, python >= 3.7
+- osx\_64, python >= 3.7
+- win\_64, python >= 3.7
+
+Details available at https://anaconda.org/conda-forge/npysearch/files.
